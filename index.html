@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catatan Masakan</title>
+    <meta name="theme-color" content="#219EBC">
+    <meta name="description" content="Aplikasi catatan resep masakan untuk merencanakan makanan dan daftar belanja">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8ECAE6;
+            --secondary: #219EBC;
+            --accent: #FFB4A2;
+            --success: #90BE6D;
+            --warning: #F9C74F;
+            --danger: #F94144;
+            --light: #F8F9FA;
+            --dark: #2B2D42;
+            --background: #F8F9FA;
+            --card-bg: #FFFFFF;
+            --text-primary: #2B2D42;
+            --text-secondary: #6C757D;
+            --breakfast-color: #FFB74D;
+            --breakfast-gradient: linear-gradient(120deg, #FFB74D, #FF9800);
+            --lunch-color: #81C784;
+            --lunch-gradient: linear-gradient(120deg, #81C784, #4CAF50);
+            --dinner-color: #64B5F6; 
+            --dinner-gradient: linear-gradient(120deg, #64B5F6, #1976D2);
+            --dessert-color: #F48FB1;
+            --dessert-gradient: linear-gradient(120deg, #F48FB1, #E91E63);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 60px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: var(--card-bg);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background: linear-gradient(120deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 600;
+            border-bottom: none;
+            padding: 15px 20px;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(120deg, var(--primary), var(--secondary));
+        }
+
+        .btn-secondary {
+            background: linear-gradient(120deg, #A2D2FF, #BDE0FE);
+            color: var(--dark);
+        }
+
+        .btn-success {
+            background: linear-gradient(120deg, var(--success), #70A25F);
+        }
+
+        .btn-warning {
+            background: linear-gradient(120deg, var(--warning), #E9B44A);
+            color: var(--dark);
+        }
+
+        .btn-danger {
+            background: linear-gradient(120deg, var(--danger), #D8344D);
+        }
+
+        .btn-info {
+            background: linear-gradient(120deg, #48CAE4, #0096C7);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 3px rgba(33, 158, 188, 0.2);
+            border-color: var(--secondary);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(120deg, var(--success), #70A25F);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: none;
+            z-index: 10000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            animation: slideInRight 0.5s forwards, fadeOut 0.5s forwards 2.5s;
+            max-width: 350px;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        .ingredient-row {
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: rgba(142, 202, 230, 0.1);
+            border-radius: 8px;
+        }
+
+        .custom-unit-input {
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: linear-gradient(120deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px;
+        }
+
+        .recipe-card {
+            transition: transform 0.3s ease;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .shopping-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: rgba(248, 249, 250, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .shopping-item:hover {
+            background-color: rgba(142, 202, 230, 0.2);
+        }
+
+        .meal-plan-item {
+            border-left: 4px solid var(--secondary);
+            padding-left: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* Animasi untuk elemen yang dimuat */
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .slide-in {
+            animation: slideIn 0.8s ease forwards;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            body {
+                font-size: 18px;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+            
+            .card-body {
+                padding: 20px 15px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 18px;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .form-control, .form-select {
+                padding: 15px;
+                font-size: 18px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            h5 {
+                font-size: 1.5rem;
+            }
+            
+            .ingredient-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .ingredient-row input, 
+            .ingredient-row select, 
+            .ingredient-row button {
+                margin-bottom: 10px;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                font-size: 18px;
+            }
+            
+            .container {
+                padding: 0 10px;
+            }
+            
+            .card-body {
+                padding: 15px 10px;
+            }
+            
+            .btn {
+                padding: 14px 20px;
+                font-size: 18px;
+            }
+            
+            .form-control, .form-select {
+                padding: 16px;
+                font-size: 18px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h5 {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Custom styles for specific elements */
+        .header-title {
+            background: linear-gradient(120deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            margin: 25px 0;
+            text-align: center;
+            font-size: 2.8rem;
+        }
+
+        .section-title {
+            color: var(--secondary);
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+        /* Gaya baru untuk scroll horizontal */
+        .horizontal-scroll {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 15px 5px;
+            gap: 20px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--light);
+        }
+        
+        .horizontal-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .horizontal-scroll::-webkit-scrollbar-track {
+            background: var(--light);
+            border-radius: 10px;
+        }
+        
+        .horizontal-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        .horizontal-scroll::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+        
+        .horizontal-item {
+            flex: 0 0 auto;
+            width: 300px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .horizontal-item:hover {
+            transform: scale(1.03);
+        }
+        
+        .scroll-nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        
+        .scroll-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .scroll-btn:hover {
+            background-color: var(--secondary);
+            transform: scale(1.1);
+        }
+        
+        .meal-plan-card {
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .meal-plan-card:hover {
+            border-color: var(--secondary);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+        }
+        
+        .meal-plan-date {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            border-bottom: 2px dashed var(--primary);
+            padding-bottom: 8px;
+        }
+        
+        .card[data-category="Sarapan"] {
+          border-left: 4px solid var(--breakfast-color);
+        }
+        
+        .card[data-category="Makan Siang"] {
+          border-left: 4px solid var(--lunch-color);
+        }
+        
+        .card[data-category="Makan Malam"] {
+          border-left: 4px solid var(--dinner-color);
+        }
+        
+        .card[data-category="Dessert"] {
+          border-left: 4px solid var(--dessert-color);
+        }
+        
+        /* Header card berdasarkan kategori */
+        .card[data-category="Sarapan"] .card-header {
+          background: var(--breakfast-gradient);
+        }
+        
+        .card[data-category="Makan Siang"] .card-header {
+          background: var(--lunch-gradient);
+        }
+        
+        .card[data-category="Makan Malam"] .card-header {
+          background: var(--dinner-gradient);
+        }
+        
+        .card[data-category="Dessert"] .card-header {
+          background: var(--dessert-gradient);
+        }
+        
+        /* Badge kategori */
+        .category-badge {
+          padding: 4px 10px;
+          border-radius: 15px;
+          font-size: 0.8em;
+          font-weight: 600;
+          color: white;
+        }
+        
+        .badge-breakfast {
+          background: var(--breakfast-gradient);
+        }
+        
+        .badge-lunch {
+          background: var(--lunch-gradient);
+        }
+        
+        .badge-dinner {
+          background: var(--dinner-gradient);
+        }
+        
+        .badge-dessert {
+          background: var(--dessert-gradient);
+        }
+
+        /* Tombol aksi untuk card resep */
+        .recipe-actions {
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .recipe-action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .recipe-action-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .manual-badge {
+            font-size: 0.7em;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header-title"><i class="fas fa-utensils"></i> Catatan Masakan</h1>
+
+        <!-- Form Tambah Resep -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header">
+                <i class="fas fa-plus-circle feature-icon"></i>Tambah Resep Baru
+            </div>
+            <div class="card-body">
+                <form id="recipeForm">
+                    <div class="mb-3">
+                        <label for="recipeName" class="form-label">Nama Resep</label>
+                        <input type="text" class="form-control" id="recipeName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="recipeCategory" class="form-label">Kategori</label>
+                        <select class="form-select" id="recipeCategory">
+                            <option value="Sarapan">Sarapan</option>
+                            <option value="Makan Siang">Makan Siang</option>
+                            <option value="Makan Malam">Makan Malam</option>
+                            <option value="Dessert">Dessert</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Bahan-Bahan</label>
+                        <div id="ingredientsContainer">
+                            <div class="ingredient-row mb-2 d-flex">
+                                <input type="text" class="form-control me-2" placeholder="Nama Bahan" required>
+                                <input type="text" class="form-control me-2" style="width: 100px;" placeholder="Jumlah" required>
+                                <select class="form-select me-2 unit-select" style="width: 150px;" onchange="toggleCustomUnit(this)">
+                                    <option value="Gram">Gram</option>
+                                    <option value="Sendok Makan">Sendok Makan</option>
+                                    <option value="Sendok Teh">Sendok Teh</option>
+                                    <option value="Cup">Cup</option>
+                                    <option value="Liter">Liter</option>
+                                    <option value="Butir">Butir</option>
+                                    <option value="Piring">Piring</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                                <input type="text" class="form-control me-2 custom-unit-input" style="width: 150px;" placeholder="Satuan Custom">
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeIngredientRow(this)"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="addIngredientRow()"><i class="fas fa-plus"></i> Tambah Bahan</button>
+                    </div>
+                    <div class="mb-3">
+                        <label for="recipeSteps" class="form-label">Langkah-Langkah</label>
+                        <textarea class="form-control" id="recipeSteps" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Simpan Resep</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Pencarian Resep -->
+        <div class="mb-4 slide-in">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="searchRecipe" placeholder="Cari resep berdasarkan nama atau kategori...">
+            </div>
+        </div>
+
+        <!-- Daftar Resep -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header">
+                <i class="fas fa-book feature-icon"></i>Daftar Resep
+            </div>
+            <div class="scroll-nav">
+            <button class="scroll-btn" onclick="scrollRecipes('left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="scroll-btn" onclick="scrollRecipes('right')"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="card-body">
+                <div id="recipeList" class="horizontal-scroll"></div>
+            </div>
+        </div>
+
+        <!-- Meal Planner -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header">
+                <i class="fas fa-calendar-alt feature-icon"></i>Meal Planner (Harian)
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mealDate" class="form-label">Pilih Tanggal</label>
+                        <input type="date" class="form-control" id="mealDate" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="mealRecipe" class="form-label">Pilih Resep</label>
+                        <input list="recipeDatalist" class="form-control" id="mealRecipe" required>
+                        <datalist id="recipeDatalist"></datalist>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addToMealPlan()"><i class="fas fa-plus"></i> Tambah ke Meal Plan</button>
+                <div class="scroll-nav">
+                <button class="scroll-btn" onclick="scrollMealPlans('left')"><i class="fas fa-chevron-left"></i></button>
+                <button class="scroll-btn" onclick="scrollMealPlans('right')"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div id="mealPlan" class=" horizontal-scroll mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Daftar Belanja -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header">
+                <i class="fas fa-shopping-cart feature-icon"></i>Daftar Belanja
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Tambah Item Belanja Manual</label>
+                    <div class="row g-2">
+                        <div class="col-md-5">
+                            <input list="allIngredientsList" class="form-control" id="manualItem" placeholder="Nama item">
+                            <datalist id="allIngredientsList"></datalist>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="manualQuantity" placeholder="Jumlah">
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100" onclick="addManualItem()"><i class="fas fa-plus"></i> Tambah</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <ul id="shoppingList" class="list-group"></ul>
+                <div class="mt-3">
+                    <strong>Total Harga: Rp <span id="totalPrice">0</span></strong>
+                </div>
+                <button class="btn btn-success mt-3" onclick="shareShoppingList()"><i class="fab fa-whatsapp"></i> Share via WhatsApp</button>
+            </div>
+        </div>
+
+        <!-- Backup & Restore -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header">
+                <i class="fas fa-database feature-icon"></i>Backup & Restore
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2 d-md-flex">
+                    <button class="btn btn-info me-2" onclick="backupToJSON()"><i class="fas fa-download"></i> Backup JSON</button>
+                    <button class="btn btn-info me-2" onclick="backupToCSV()"><i class="fas fa-file-csv"></i> Backup CSV</button>
+                    <input type="file" id="restoreFile" accept=".json" style="display: none;">
+                    <button class="btn btn-warning" onclick="document.getElementById('restoreFile').click()"><i class="fas fa-upload"></i> Restore JSON</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifikasi -->
+        <div id="notification" class="notification"></div>
+    </div>
+
+    <footer id="storageInfo" class="fade-in">Storage Usage: Calculating...</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Inisialisasi IndexedDB
+    let db;
+    const request = indexedDB.open("resepDB", 4); // Naikkan versi untuk perubahan skema
+
+    request.onupgradeneeded = function (event) {
+        db = event.target.result;
+        
+        // Hapus objectStore lama jika ada untuk menghindari error
+        if (db.objectStoreNames.contains("recipes")) {
+            db.deleteObjectStore("recipes");
+        }
+        if (db.objectStoreNames.contains("mealPlans")) {
+            db.deleteObjectStore("mealPlans");
+        }
+        if (db.objectStoreNames.contains("shoppingList")) {
+            db.deleteObjectStore("shoppingList");
+        }
+        
+        // Buat objectStore baru
+        const recipeStore = db.createObjectStore("recipes", { keyPath: "id", autoIncrement: true });
+        recipeStore.createIndex("name", "name", { unique: false });
+        recipeStore.createIndex("category", "category", { unique: false });
+        
+        db.createObjectStore("mealPlans", { keyPath: "date" });
+        db.createObjectStore("shoppingList", { keyPath: "id", autoIncrement: true });
+    };
+
+    request.onsuccess = function (event) {
+        db = event.target.result;
+        loadRecipes();
+        loadMealPlans();
+        loadShoppingList();
+        updateStorageInfo();
+    };
+
+    request.onerror = function (event) {
+        console.error("IndexedDB error:", event.target.errorCode);
+        showNotification("Error mengakses database. Silakan refresh halaman.");
+    };
+
+    // Fungsi untuk toggle custom unit
+    function toggleCustomUnit(select) {
+        try {
+            const row = select.closest('.ingredient-row');
+            if (!row) return;
+            
+            const customInput = row.querySelector('.custom-unit-input');
+            if (select.value === "Lainnya") {
+                customInput.style.display = 'block';
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+        } catch (error) {
+            console.error("Error in toggleCustomUnit:", error);
+        }
+    }
+
+    // Tambah Baris Bahan
+    function addIngredientRow() {
+        try {
+            const container = document.getElementById("ingredientsContainer");
+            if (!container) return;
+            
+            const row = document.createElement("div");
+            row.className = "ingredient-row mb-2 d-flex";
+            row.innerHTML = `
+                <input type="text" class="form-control me-2" placeholder="Nama Bahan" required>
+                <input type="text" class="form-control me-2" style="width: 100px;" placeholder="Jumlah" required>
+                <select class="form-select me-2 unit-select" style="width: 150px;" onchange="toggleCustomUnit(this)">
+                    <option value="Gram">Gram</option>
+                    <option value="Sendok Makan">Sendok Makan</option>
+                    <option value="Sendok Teh">Sendok Teh</option>
+                    <option value="Cup">Cup</option>
+                    <option value="Liter">Liter</option>
+                    <option value="Butir">Butir</option>
+                    <option value="Piring">Piring</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+                <input type="text" class="form-control me-2 custom-unit-input" style="width: 150px; display: none;" placeholder="Satuan Custom">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeIngredientRow(this)"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(row);
+        } catch (error) {
+            console.error("Error in addIngredientRow:", error);
+            showNotification("Error menambah baris bahan.");
+        }
+    }
+
+    function removeIngredientRow(button) {
+        try {
+            const row = button.closest('.ingredient-row');
+            if (row && document.querySelectorAll('.ingredient-row').length > 1) {
+                row.remove();
+            } else {
+                showNotification("Minimal harus ada satu bahan.");
+            }
+        } catch (error) {
+            console.error("Error in removeIngredientRow:", error);
+        }
+    }
+
+    // Simpan Resep
+    document.getElementById("recipeForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        
+        try {
+            // Validasi form
+            const recipeName = document.getElementById("recipeName").value.trim();
+            const recipeSteps = document.getElementById("recipeSteps").value.trim();
+            
+            if (!recipeName) {
+                showNotification("Nama resep harus diisi!");
+                return;
+            }
+            
+            if (!recipeSteps) {
+                showNotification("Langkah-langkah harus diisi!");
+                return;
+            }
+            
+            const usage = await navigator.storage.estimate();
+            if (usage.usage > 10 * 1024 * 1024) { // Limit 10MB
+                showNotification("Storage melebihi 10MB! Hapus data lama.");
+                return;
+            }
+            
+            const ingredients = [];
+            const ingredientRows = document.querySelectorAll(".ingredient-row");
+            let hasError = false;
+            
+            ingredientRows.forEach(row => {
+                const nameInput = row.querySelector("input:nth-child(1)");
+                const quantityInput = row.querySelector("input:nth-child(2)");
+                const unitSelect = row.querySelector(".unit-select");
+                
+                const name = nameInput.value.trim();
+                const quantity = quantityInput.value.trim();
+                let unit = unitSelect.value;
+                
+                // Validasi input bahan
+                if (!name || !quantity) {
+                    showNotification("Semua field bahan harus diisi!");
+                    hasError = true;
+                    return;
+                }
+                
+                if (unit === "Lainnya") {
+                    const customUnitInput = row.querySelector(".custom-unit-input");
+                    unit = customUnitInput.value.trim();
+                    if (!unit) {
+                        showNotification("Satuan custom harus diisi!");
+                        hasError = true;
+                        return;
+                    }
+                }
+                
+                ingredients.push({ name, quantity, unit });
+            });
+            
+            if (hasError || ingredients.length === 0) {
+                if (ingredients.length === 0) {
+                    showNotification("Minimal satu bahan harus ditambahkan!");
+                }
+                return;
+            }
+            
+            const recipe = {
+                name: recipeName,
+                category: document.getElementById("recipeCategory").value,
+                ingredients: ingredients,
+                steps: recipeSteps,
+            };
+
+            const transaction = db.transaction(["recipes"], "readwrite");
+            const store = transaction.objectStore("recipes");
+            const request = store.add(recipe);
+
+            request.onsuccess = function () {
+                showNotification(`Yeay! Resep ${recipe.name} berhasil disimpan! 🥳`);
+                document.getElementById("recipeForm").reset();
+                const container = document.getElementById("ingredientsContainer");
+                container.innerHTML = '';
+                addIngredientRow(); // Reset ke satu baris kosong
+                loadRecipes();
+            };
+            
+            request.onerror = function () {
+                showNotification("Error menyimpan resep. Silakan coba lagi.");
+            };
+        } catch (error) {
+            console.error("Error saving recipe:", error);
+            showNotification("Error menyimpan resep.");
+        }
+    });
+
+    // Tampilkan Daftar Resep & Update Datalist
+    function loadRecipes() {
+        try {
+            const recipeList = document.getElementById("recipeList");
+            const datalist = document.getElementById("recipeDatalist");
+            
+            if (!recipeList || !datalist) return;
+            
+            recipeList.innerHTML = "<div class='text-center py-3'>Memuat resep...</div>";
+            datalist.innerHTML = "";
+            
+            const transaction = db.transaction(["recipes"], "readonly");
+            const store = transaction.objectStore("recipes");
+            const request = store.getAll();
+
+            request.onsuccess = function (event) {
+                const recipes = event.target.result;
+                recipeList.innerHTML = "";
+                
+                if (recipes.length === 0) {
+                    recipeList.innerHTML = "<div class='text-center py-3'>Belum ada resep. Tambahkan resep baru!</div>";
+                    return;
+                }
+                
+                recipes.forEach(recipe => {
+                    const ingredientsList = recipe.ingredients.map(ing => 
+                        `${ing.name}: ${ing.quantity} ${ing.unit}`
+                    ).join("<br>");
+                    
+                    const card = document.createElement("div");
+                    card.className = "horizontal-item";
+                    card.innerHTML = `
+                    <div class="card recipe-card h-100" data-category="${recipe.category}">
+                        <div class="card-body position-relative">
+                            <div class="recipe-actions">
+                                <button class="btn btn-warning btn-sm recipe-action-btn" onclick="editRecipe(${recipe.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm recipe-action-btn" onclick="deleteRecipe(${recipe.id})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title">${escapeHtml(recipe.name)}</h5>
+                                <span class="category-badge badge-${getCategorySlug(recipe.category)}">
+                                    ${escapeHtml(recipe.category)}
+                                </span>
+                            </div>
+                            <p class="card-text"><strong>Bahan:</strong><br>${ingredientsList}</p>
+                            <p class="card-text"><strong>Langkah:</strong> ${escapeHtml(recipe.steps).replace(/\n/g, "<br>")}</p>
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button class="btn btn-primary me-md-2" onclick="addToShoppingList(${recipe.id})"><i class="fas fa-cart-plus"></i> Daftar Belanja</button>
+                                <button class="btn btn-secondary" onclick="shareRecipe(${recipe.id})"><i class="fab fa-whatsapp"></i> Share</button>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                    recipeList.appendChild(card);
+
+                    // Tambah ke datalist
+                    const option = document.createElement("option");
+                    option.value = recipe.name;
+                    datalist.appendChild(option);
+                });
+
+                // Muat datalist bahan setelah resep dimuat
+                loadAllIngredients();
+            };
+            
+            request.onerror = function () {
+                recipeList.innerHTML = "<div class='text-center py-3 text-danger'>Error memuat resep.</div>";
+            };
+        } catch (error) {
+            console.error("Error in loadRecipes:", error);
+            const recipeList = document.getElementById("recipeList");
+            if (recipeList) {
+                recipeList.innerHTML = "<div class='text-center py-3 text-danger'>Error memuat resep.</div>";
+            }
+        }
+    }
+
+    // Fungsi untuk menghapus resep
+    function deleteRecipe(recipeId) {
+        if (!confirm("Apakah Anda yakin ingin menghapus resep ini?")) {
+            return;
+        }
+        
+        try {
+            const transaction = db.transaction(["recipes", "mealPlans"], "readwrite");
+            const recipeStore = transaction.objectStore("recipes");
+            const mealPlanStore = transaction.objectStore("mealPlans");
+            
+            // Hapus resep
+            recipeStore.delete(recipeId);
+            
+            // Hapus juga dari meal plan jika ada
+            const mealPlanRequest = mealPlanStore.getAll();
+            mealPlanRequest.onsuccess = function() {
+                const mealPlans = mealPlanRequest.result;
+                mealPlans.forEach(plan => {
+                    const recipeRequest = recipeStore.get(recipeId);
+                    recipeRequest.onsuccess = function(e) {
+                        const recipe = e.target.result;
+                        if (recipe && plan.recipeName === recipe.name) {
+                            mealPlanStore.delete(plan.date);
+                        }
+                    };
+                });
+            };
+            
+            showNotification("Resep berhasil dihapus! ❌");
+            loadRecipes();
+        } catch (error) {
+            console.error("Error in deleteRecipe:", error);
+            showNotification("Error menghapus resep.");
+        }
+    }
+
+    // Fungsi untuk mengedit resep
+    function editRecipe(recipeId) {
+        try {
+            const transaction = db.transaction(["recipes"], "readonly");
+            const store = transaction.objectStore("recipes");
+            const request = store.get(recipeId);
+
+            request.onsuccess = function(event) {
+                const recipe = event.target.result;
+                if (!recipe) {
+                    showNotification("Resep tidak ditemukan!");
+                    return;
+                }
+                
+                // Isi form dengan data resep
+                document.getElementById("recipeName").value = recipe.name;
+                document.getElementById("recipeCategory").value = recipe.category;
+                document.getElementById("recipeSteps").value = recipe.steps;
+                
+                // Kosongkan dan isi ulang ingredients container
+                const container = document.getElementById("ingredientsContainer");
+                container.innerHTML = '';
+                
+                recipe.ingredients.forEach(ingredient => {
+                    addIngredientRow();
+                    const rows = container.querySelectorAll('.ingredient-row');
+                    const lastRow = rows[rows.length - 1];
+                    
+                    lastRow.querySelector('input:nth-child(1)').value = ingredient.name;
+                    lastRow.querySelector('input:nth-child(2)').value = ingredient.quantity;
+                    
+                    const unitSelect = lastRow.querySelector('.unit-select');
+                    const customUnitInput = lastRow.querySelector('.custom-unit-input');
+                    
+                    // Cek jika unit adalah custom
+                    const standardUnits = ["Gram", "Sendok Makan", "Sendok Teh", "Cup", "Liter", "Butir", "Piring"];
+                    if (standardUnits.includes(ingredient.unit)) {
+                        unitSelect.value = ingredient.unit;
+                        customUnitInput.style.display = 'none';
+                    } else {
+                        unitSelect.value = "Lainnya";
+                        customUnitInput.style.display = 'block';
+                        customUnitInput.value = ingredient.unit;
+                    }
+                });
+                
+                // Ubah tombol submit untuk edit mode
+                const submitBtn = document.querySelector('#recipeForm button[type="submit"]');
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Resep';
+                submitBtn.onclick = function(e) {
+                    e.preventDefault();
+                    updateRecipe(recipeId);
+                };
+                
+                // Scroll ke form
+                document.getElementById("recipeForm").scrollIntoView({ behavior: 'smooth' });
+                
+                showNotification(`Sedang mengedit resep: ${recipe.name} ✏️`);
+            };
+        } catch (error) {
+            console.error("Error in editRecipe:", error);
+            showNotification("Error memuat data resep untuk diedit.");
+        }
+    }
+
+    // Fungsi untuk update resep
+    function updateRecipe(recipeId) {
+        try {
+            // Validasi form
+            const recipeName = document.getElementById("recipeName").value.trim();
+            const recipeSteps = document.getElementById("recipeSteps").value.trim();
+            
+            if (!recipeName) {
+                showNotification("Nama resep harus diisi!");
+                return;
+            }
+            
+            if (!recipeSteps) {
+                showNotification("Langkah-langkah harus diisi!");
+                return;
+            }
+            
+            const ingredients = [];
+            const ingredientRows = document.querySelectorAll(".ingredient-row");
+            let hasError = false;
+            
+            ingredientRows.forEach(row => {
+                const nameInput = row.querySelector("input:nth-child(1)");
+                const quantityInput = row.querySelector("input:nth-child(2)");
+                const unitSelect = row.querySelector(".unit-select");
+                
+                const name = nameInput.value.trim();
+                const quantity = quantityInput.value.trim();
+                let unit = unitSelect.value;
+                
+                if (!name || !quantity) {
+                    showNotification("Semua field bahan harus diisi!");
+                    hasError = true;
+                    return;
+                }
+                
+                if (unit === "Lainnya") {
+                    const customUnitInput = row.querySelector(".custom-unit-input");
+                    unit = customUnitInput.value.trim();
+                    if (!unit) {
+                        showNotification("Satuan custom harus diisi!");
+                        hasError = true;
+                        return;
+                    }
+                }
+                
+                ingredients.push({ name, quantity, unit });
+            });
+            
+            if (hasError || ingredients.length === 0) {
+                if (ingredients.length === 0) {
+                    showNotification("Minimal satu bahan harus ditambahkan!");
+                }
+                return;
+            }
+            
+            const updatedRecipe = {
+                id: recipeId,
+                name: recipeName,
+                category: document.getElementById("recipeCategory").value,
+                ingredients: ingredients,
+                steps: recipeSteps,
+            };
+
+            const transaction = db.transaction(["recipes"], "readwrite");
+            const store = transaction.objectStore("recipes");
+            const request = store.put(updatedRecipe);
+
+            request.onsuccess = function() {
+                showNotification(`Resep ${updatedRecipe.name} berhasil diupdate! ✅`);
+                
+                // Reset form dan kembalikan tombol submit
+                document.getElementById("recipeForm").reset();
+                const container = document.getElementById("ingredientsContainer");
+                container.innerHTML = '';
+                addIngredientRow();
+                
+                const submitBtn = document.querySelector('#recipeForm button[type="submit"]');
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Simpan Resep';
+                submitBtn.onclick = function(e) {
+                    e.preventDefault();
+                    document.getElementById("recipeForm").dispatchEvent(new Event('submit'));
+                };
+                
+                loadRecipes();
+            };
+            
+            request.onerror = function() {
+                showNotification("Error mengupdate resep. Silakan coba lagi.");
+            };
+        } catch (error) {
+            console.error("Error updating recipe:", error);
+            showNotification("Error mengupdate resep.");
+        }
+    }
+
+    // Pencarian Resep
+    document.getElementById("searchRecipe").addEventListener("input", function (e) {
+        const query = e.target.value.toLowerCase().trim();
+        
+        try {
+            const transaction = db.transaction(["recipes"], "readonly");
+            const store = transaction.objectStore("recipes");
+            const request = store.getAll();
+
+            request.onsuccess = function (event) {
+                const recipes = event.target.result;
+                const filtered = recipes.filter(recipe =>
+                    recipe.name.toLowerCase().includes(query) || 
+                    recipe.category.toLowerCase().includes(query)
+                );
+                
+                const recipeList = document.getElementById("recipeList");
+                if (!recipeList) return;
+                
+                recipeList.innerHTML = "";
+                
+                if (filtered.length === 0) {
+                    recipeList.innerHTML = "<div class='text-center py-3'>Tidak ada resep yang cocok dengan pencarian.</div>";
+                    return;
+                }
+                
+                filtered.forEach(recipe => {
+                    const ingredientsList = recipe.ingredients.map(ing => 
+                        `${ing.name}: ${ing.quantity} ${ing.unit}`
+                    ).join("<br>");
+                    
+                    const card = document.createElement("div");
+                    card.className = "horizontal-item";
+                    card.innerHTML = `
+                    <div class="card recipe-card h-100" data-category="${recipe.category}">
+                        <div class="card-body position-relative">
+                            <div class="recipe-actions">
+                                <button class="btn btn-warning btn-sm recipe-action-btn" onclick="editRecipe(${recipe.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm recipe-action-btn" onclick="deleteRecipe(${recipe.id})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title">${escapeHtml(recipe.name)}</h5>
+                                <span class="category-badge badge-${getCategorySlug(recipe.category)}">
+                                    ${escapeHtml(recipe.category)}
+                                </span>
+                            </div>
+                            <p class="card-text"><strong>Bahan:</strong><br>${ingredientsList}</p>
+                            <p class="card-text"><strong>Langkah:</strong> ${escapeHtml(recipe.steps).replace(/\n/g, "<br>")}</p>
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button class="btn btn-primary me-md-2" onclick="addToShoppingList(${recipe.id})"><i class="fas fa-cart-plus"></i> Daftar Belanja</button>
+                                <button class="btn btn-secondary" onclick="shareRecipe(${recipe.id})"><i class="fab fa-whatsapp"></i> Share</button>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                    recipeList.appendChild(card);
+                });
+            };
+        } catch (error) {
+            console.error("Error in search:", error);
+        }
+    });
+
+    // Fungsi untuk memuat semua bahan ke datalist
+    function loadAllIngredients() {
+        try {
+            const transaction = db.transaction(["recipes"], "readonly");
+            const store = transaction.objectStore("recipes");
+            const request = store.getAll();
+
+            request.onsuccess = function(event) {
+                const recipes = event.target.result;
+                const allIngredients = new Set(); // Gunakan Set untuk menghindari duplikat
+                
+                recipes.forEach(recipe => {
+                    recipe.ingredients.forEach(ing => {
+                        allIngredients.add(ing.name);
+                    });
+                });
+                
+                const datalist = document.getElementById("allIngredientsList");
+                datalist.innerHTML = '';
+                
+                allIngredients.forEach(ingredient => {
+                    const option = document.createElement("option");
+                    option.value = ingredient;
+                    datalist.appendChild(option);
+                });
+            };
+        } catch (error) {
+            console.error("Error in loadAllIngredients:", error);
+        }
+    }
+
+    // Fungsi untuk menambah item manual
+    function addManualItem() {
+        try {
+            const itemName = document.getElementById("manualItem").value.trim();
+            const quantity = document.getElementById("manualQuantity").value.trim();
+            
+            if (!itemName) {
+                showNotification("Nama item harus diisi!");
+                return;
+            }
+            
+            if (!quantity) {
+                showNotification("Jumlah harus diisi!");
+                return;
+            }
+            
+            const itemText = `${itemName}: ${quantity} (manual)`;
+            
+            const transaction = db.transaction(["shoppingList"], "readwrite");
+            const store = transaction.objectStore("shoppingList");
+            
+            // Cek apakah item sudah ada
+            const getAllRequest = store.getAll();
+            getAllRequest.onsuccess = function() {
+                const items = getAllRequest.result;
+                const alreadyExists = items.some(item => item.item.includes(itemName));
+                
+                if (alreadyExists) {
+                    showNotification("Item sudah ada dalam daftar belanja!");
+                    return;
+                }
+                
+                const item = { 
+                    item: itemText, 
+                    price: null, 
+                    checked: false,
+                    isManual: true
+                };
+                
+                store.add(item);
+                
+                // Reset input
+                document.getElementById("manualItem").value = "";
+                document.getElementById("manualQuantity").value = "";
+                
+                showNotification("Item manual ditambahkan ke daftar belanja! 📝");
+                loadShoppingList();
+            };
+        } catch (error) {
+            console.error("Error in addManualItem:", error);
+            showNotification("Error menambah item manual.");
+        }
+    }
+
+    // Daftar Belanja
+    function loadShoppingList() {
+        try {
+            const shoppingListEl = document.getElementById("shoppingList");
+            if (!shoppingListEl) return;
+            
+            shoppingListEl.innerHTML = "<li class='list-group-item text-center'>Memuat daftar belanja...</li>";
+            
+            const transaction = db.transaction(["shoppingList"], "readonly");
+            const store = transaction.objectStore("shoppingList");
+            const request = store.getAll();
+
+            request.onsuccess = function (event) {
+                const items = event.target.result;
+                shoppingListEl.innerHTML = "";
+                
+                if (items.length === 0) {
+                    shoppingListEl.innerHTML = "<li class='list-group-item text-center'>Daftar belanja kosong.</li>";
+                    document.getElementById("totalPrice").textContent = "0";
+                    return;
+                }
+                
+                let total = 0;
+                items.forEach(item => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item shopping-item";
+                    
+                    // Untuk item manual, tambahkan badge
+                    const isManual = item.isManual ? '<span class="badge bg-info manual-badge">Manual</span>' : '';
+                    
+                    li.innerHTML = `
+                        <input type="checkbox" onchange="toggleItem(${item.id})" ${item.checked ? 'checked' : ''} class="me-3">
+                        <span class="flex-grow-1">${escapeHtml(item.item)} ${isManual}</span>
+                        <input type="number" class="form-control ms-2" style="width: 120px;" placeholder="Harga (Rp)" value="${item.price || ''}" onchange="updatePrice(${item.id}, this.value)" min="0">
+                        <button class="btn btn-danger btn-sm ms-2" onclick="deleteShoppingItem(${item.id})"><i class="fas fa-trash"></i></button>
+                    `;
+                    shoppingListEl.appendChild(li);
+                    if (item.price) total += parseInt(item.price);
+                });
+                document.getElementById("totalPrice").textContent = total.toLocaleString('id-ID');
+            };
+            
+            request.onerror = function () {
+                shoppingListEl.innerHTML = "<li class='list-group-item text-center text-danger'>Error memuat daftar belanja.</li>";
+            };
+        } catch (error) {
+            console.error("Error in loadShoppingList:", error);
+            const shoppingListEl = document.getElementById("shoppingList");
+            if (shoppingListEl) {
+                shoppingListEl.innerHTML = "<li class='list-group-item text-center text-danger'>Error memuat daftar belanja.</li>";
+            }
+        }
+    }
+
+    function addToShoppingList(recipeId) {
+        try {
+            const transaction = db.transaction(["recipes", "shoppingList"], "readwrite");
+            const recipeStore = transaction.objectStore("recipes");
+            const shoppingStore = transaction.objectStore("shoppingList");
+            const getRecipe = recipeStore.get(recipeId);
+
+            getRecipe.onsuccess = function (event) {
+                const recipe = event.target.result;
+                if (!recipe) {
+                    showNotification("Resep tidak ditemukan!");
+                    return;
+                }
+                
+                // Cek apakah bahan sudah ada di daftar belanja
+                const getAllItems = shoppingStore.getAll();
+                getAllItems.onsuccess = function(e) {
+                    const existingItems = e.target.result;
+                    
+                    recipe.ingredients.forEach(ing => {
+                        const itemText = `${ing.name}: ${ing.quantity} ${ing.unit}`;
+                        const alreadyExists = existingItems.some(item => item.item === itemText);
+                        
+                        if (!alreadyExists) {
+                            const item = { item: itemText, price: null, checked: false };
+                            shoppingStore.add(item);
+                        }
+                    });
+                    
+                    showNotification(`Bahan dari ${recipe.name} ditambahkan ke daftar belanja! 📝`);
+                    loadShoppingList();
+                };
+            };
+            
+            getRecipe.onerror = function () {
+                showNotification("Error mengambil data resep.");
+            };
+        } catch (error) {
+            console.error("Error in addToShoppingList:", error);
+            showNotification("Error menambah ke daftar belanja.");
+        }
+    }
+
+    function updatePrice(id, price) {
+        try {
+            const transaction = db.transaction(["shoppingList"], "readwrite");
+            const store = transaction.objectStore("shoppingList");
+            const getItem = store.get(id);
+
+            getItem.onsuccess = function (event) {
+                const item = event.target.result;
+                if (!item) return;
+                
+                item.price = price ? parseInt(price) : null;
+                if (isNaN(item.price)) item.price = null;
+                
+                store.put(item);
+                loadShoppingList();
+            };
+        } catch (error) {
+            console.error("Error in updatePrice:", error);
+        }
+    }
+
+    function toggleItem(id) {
+        try {
+            const transaction = db.transaction(["shoppingList"], "readwrite");
+            const store = transaction.objectStore("shoppingList");
+            const getItem = store.get(id);
+
+            getItem.onsuccess = function (event) {
+                const item = event.target.result;
+                if (!item) return;
+                
+                item.checked = !item.checked;
+                store.put(item);
+                showNotification("Item dicentang! 🛒");
+            };
+        } catch (error) {
+            console.error("Error in toggleItem:", error);
+        }
+    }
+
+    function deleteShoppingItem(id) {
+        try {
+            const transaction = db.transaction(["shoppingList"], "readwrite");
+            const store = transaction.objectStore("shoppingList");
+            store.delete(id);
+            loadShoppingList();
+            showNotification("Item dihapus dari daftar belanja! ❌");
+        } catch (error) {
+            console.error("Error in deleteShoppingItem:", error);
+            showNotification("Error menghapus item.");
+        }
+    }
+
+    function shareShoppingList() {
+        try {
+            const transaction = db.transaction(["shoppingList"], "readonly");
+            const store = transaction.objectStore("shoppingList");
+            const request = store.getAll();
+
+            request.onsuccess = function (event) {
+                const items = event.target.result;
+                if (items.length === 0) {
+                    showNotification("Daftar belanja kosong!");
+                    return;
+                }
+                
+                const text = `Daftar Belanja:\n${items.map(item => `- ${item.item} (Rp ${item.price || '0'})`).join("\n")}`;
+                const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+                window.open(url, "_blank");
+                showNotification("Daftar belanja berhasil dishare ke WhatsApp! 😋");
+            };
+        } catch (error) {
+            console.error("Error in shareShoppingList:", error);
+            showNotification("Error berbagi daftar belanja.");
+        }
+    }
+
+    // Meal Planner
+    function loadMealPlans() {
+        try {
+            const mealPlanEl = document.getElementById("mealPlan");
+            if (!mealPlanEl) return;
+            
+            mealPlanEl.innerHTML = "<div class='text-center py-3'>Memuat meal plan...</div>";
+            
+            const transaction = db.transaction(["mealPlans"], "readonly");
+            const store = transaction.objectStore("mealPlans");
+            const request = store.getAll();
+
+            request.onsuccess = function (event) {
+                const plans = event.target.result;
+                mealPlanEl.innerHTML = "";
+                
+                if (plans.length === 0) {
+                    mealPlanEl.innerHTML = "<div class='text-center py-3'>Belum ada meal plan. Tambahkan resep ke meal plan!</div>";
+                    return;
+                }
+                
+                // Urutkan meal plan berdasarkan tanggal (terbaru pertama)
+                plans.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                plans.forEach(plan => {
+                    const transactionRecipe = db.transaction(["recipes"], "readonly");
+                    const recipeStore = transactionRecipe.objectStore("recipes");
+                    const nameIndex = recipeStore.index("name");
+                    const getRecipe = nameIndex.get(plan.recipeName);
+
+                    getRecipe.onsuccess = function (e) {
+                        const recipe = e.target.result;
+                        const div = document.createElement("div");
+                        div.className = "horizontal-item";
+                        
+                        if (recipe) {
+                            const date = new Date(plan.date);
+                            const formattedDate = date.toLocaleDateString('id-ID');
+                            const ingredientsList = recipe.ingredients.map(ing => 
+                                `${ing.name}: ${ing.quantity} ${ing.unit}`
+                            ).join("<br>");
+                            
+                            div.innerHTML = `
+                                <div class="meal-plan-card">
+                                    <div class="meal-plan-date">
+                                        <h6>${formattedDate}: ${escapeHtml(plan.recipeName)}</h6>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteMealPlan('${plan.date}')"><i class="fas fa-trash"></i> Hapus </button>
+                                    </div>
+                                    <p class="mb-1"><strong>Kategori:</strong> ${escapeHtml(recipe.category)}</p>
+                                    <p class="mb-1"><strong>Bahan:</strong><br>${ingredientsList}</p>
+                                    <p class="mb-0"><strong>Langkah:</strong> ${escapeHtml(recipe.steps).replace(/\n/g, "<br>")}</p>
+                                </div>
+                            `;
+                        } else {
+                            // Jika resep sudah dihapus dari database
+                            const date = new Date(plan.date);
+                            const formattedDate = date.toLocaleDateString('id-ID');
+                            
+                            div.innerHTML = `
+                                <div class="meal-plan-card">
+                                    <div class="meal-plan-date">
+                                        <h6>${formattedDate}: ${escapeHtml(plan.recipeName)}</h6>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteMealPlan('${plan.date}')"><i class="fas fa-trash"></i> Hapus </button>
+                                    </div>
+                                    <p class="text-danger">Resep ini telah dihapus dari database.</p>
+                                </div>
+                            `;
+                        }
+                        
+                        mealPlanEl.appendChild(div);
+                    };
+                });
+            };
+            
+            request.onerror = function () {
+                mealPlanEl.innerHTML = "<div class='text-center py-3 text-danger'>Error memuat meal plan.</div>";
+            };
+        } catch (error) {
+            console.error("Error in loadMealPlans:", error);
+            const mealPlanEl = document.getElementById("mealPlan");
+            if (mealPlanEl) {
+                mealPlanEl.innerHTML = "<div class='text-center py-3 text-danger'>Error memuat meal plan.</div>";
+            }
+        }
+    }
+
+    function addToMealPlan() {
+        try {
+            const dateInput = document.getElementById("mealDate").value;
+            const recipeName = document.getElementById("mealRecipe").value.trim();
+            
+            if (!dateInput) {
+                showNotification("Pilih tanggal terlebih dahulu! ⚠️");
+                return;
+            }
+            
+            if (!recipeName) {
+                showNotification("Pilih resep terlebih dahulu! ⚠️");
+                return;
+            }
+            
+            const date = new Date(dateInput).toISOString().split('T')[0]; // Format YYYY-MM-DD untuk key
+            
+            // Validasi apakah resep ada di database
+            const transactionCheck = db.transaction(["recipes"], "readonly");
+            const recipeStore = transactionCheck.objectStore("recipes");
+            const nameIndex = recipeStore.index("name");
+            const getRecipe = nameIndex.get(recipeName);
+            
+            getRecipe.onsuccess = function(e) {
+                if (!e.target.result) {
+                    showNotification("Resep tidak ditemukan di database!");
+                    return;
+                }
+                
+                const transaction = db.transaction(["mealPlans"], "readwrite");
+                const store = transaction.objectStore("mealPlans");
+                const plan = { date: date, recipeName: recipeName };
+                
+                const request = store.put(plan);
+                
+                request.onsuccess = function() {
+                    showNotification(`Resep ${recipeName} ditambahkan ke meal plan tanggal ${new Date(date).toLocaleDateString('id-ID')}! 🍲`);
+                    document.getElementById("mealDate").value = "";
+                    document.getElementById("mealRecipe").value = "";
+                    loadMealPlans();
+                };
+                
+                request.onerror = function() {
+                    showNotification("Error menambah meal plan.");
+                };
+            };
+            
+        } catch (error) {
+            console.error("Error in addToMealPlan:", error);
+            showNotification("Error menambah meal plan.");
+        }
+    }
+
+    function deleteMealPlan(date) {
+        try {
+            if (!confirm("Apakah Anda yakin ingin menghapus meal plan ini?")) {
+                return;
+            }
+            
+            const transaction = db.transaction(["mealPlans"], "readwrite");
+            const store = transaction.objectStore("mealPlans");
+            store.delete(date);
+            loadMealPlans();
+            showNotification("Meal plan dihapus! ❌");
+        } catch (error) {
+            console.error("Error in deleteMealPlan:", error);
+            showNotification("Error menghapus meal plan.");
+        }
+    }
+
+    // Share WhatsApp Resep
+    function shareRecipe(recipeId) {
+        try {
+            const transaction = db.transaction(["recipes"], "readonly");
+            const store = transaction.objectStore("recipes");
+            const request = store.get(recipeId);
+
+            request.onsuccess = function (event) {
+                const recipe = event.target.result;
+                if (!recipe) {
+                    showNotification("Resep tidak ditemukan!");
+                    return;
+                }
+                
+                const ingredientsText = recipe.ingredients.map(ing => `- ${ing.name}: ${ing.quantity} ${ing.unit}`).join("\n");
+                const text = `Resep: ${recipe.name}\nKategori: ${recipe.category}\nBahan:\n${ingredientsText}\nLangkah:\n${recipe.steps}`;
+                const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+                window.open(url, "_blank");
+                showNotification(`Resep ${recipe.name} berhasil dishare ke WhatsApp! 😋`);
+            };
+            
+            request.onerror = function() {
+                showNotification("Error mengambil data resep.");
+            };
+        } catch (error) {
+            console.error("Error in shareRecipe:", error);
+            showNotification("Error berbagi resep.");
+        }
+    }
+
+    // Backup to JSON
+    function backupToJSON() {
+        try {
+            const transaction = db.transaction(["recipes"], "readonly");
+            const store = transaction.objectStore("recipes");
+            const request = store.getAll();
+
+            request.onsuccess = function (event) {
+                const recipes = event.target.result;
+                if (recipes.length === 0) {
+                    showNotification("Tidak ada resep untuk di-backup!");
+                    return;
+                }
+                
+                const json = JSON.stringify(recipes, null, 2);
+                const blob = new Blob([json], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "recipes_backup.json";
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification("Backup JSON berhasil! 📥");
+            };
+            
+            request.onerror = function() {
+                showNotification("Error membuat backup.");
+            };
+        } catch (error) {
+            console.error("Error in backupToJSON:", error);
+            showNotification("Error membuat backup.");
+        }
+    }
+
+    // Backup to CSV
+    function backupToCSV() {
+        try {
+            const transaction = db.transaction(["recipes"], "readonly");
+            const store = transaction.objectStore("recipes");
+            const request = store.getAll();
+
+            request.onsuccess = function (event) {
+                const recipes = event.target.result;
+                if (recipes.length === 0) {
+                    showNotification("Tidak ada resep untuk di-backup!");
+                    return;
+                }
+                
+                let csv = "id,name,category,ingredients,steps\n";
+                recipes.forEach(recipe => {
+                    const ingredients = recipe.ingredients.map(ing => 
+                        `${ing.name.replace(/"/g, '""')}:${ing.quantity}:${ing.unit.replace(/"/g, '""')}`
+                    ).join(";");
+                    
+                    csv += `${recipe.id},"${recipe.name.replace(/"/g, '""')}","${recipe.category.replace(/"/g, '""')}","${ingredients}","${recipe.steps.replace(/"/g, '""').replace(/\n/g, "\\n")}"\n`;
+                });
+                
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "recipes_backup.csv";
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification("Backup CSV berhasil! 📥");
+            };
+            
+            request.onerror = function() {
+                showNotification("Error membuat backup CSV.");
+            };
+        } catch (error) {
+            console.error("Error in backupToCSV:", error);
+            showNotification("Error membuat backup CSV.");
+        }
+    }
+
+    // Restore from JSON
+    document.getElementById("restoreFile").addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (!confirm("Restore akan mengganti semua data yang ada. Lanjutkan?")) {
+            this.value = "";
+            return;
+        }
+        
+        try {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                try {
+                    const recipes = JSON.parse(event.target.result);
+                    if (!Array.isArray(recipes)) {
+                        showNotification("Format file backup tidak valid!");
+                        return;
+                    }
+                    
+                    const transaction = db.transaction(["recipes"], "readwrite");
+                    const store = transaction.objectStore("recipes");
+                    
+                    // Hapus semua data lama
+                    store.clear();
+                    
+                    // Tambah data baru
+                    recipes.forEach(recipe => {
+                        store.add(recipe);
+                    });
+                    
+                    showNotification("Restore JSON berhasil! 🔄");
+                    loadRecipes();
+                } catch (parseError) {
+                    console.error("Error parsing JSON:", parseError);
+                    showNotification("File backup tidak valid!");
+                }
+            };
+            
+            reader.onerror = function() {
+                showNotification("Error membaca file.");
+            };
+            
+            reader.readAsText(file);
+            this.value = ""; // Reset input file
+        } catch (error) {
+            console.error("Error in restore:", error);
+            showNotification("Error melakukan restore.");
+        }
+    });
+
+    // Pantau Storage
+    async function updateStorageInfo() {
+        try {
+            if ('storage' in navigator && 'estimate' in navigator.storage) {
+                const estimate = await navigator.storage.estimate();
+                let usage = estimate.usage / 1024; // KB
+                let unit = 'KB';
+                if (usage >= 1024) {
+                    usage /= 1024; // MB
+                    unit = 'MB';
+                }
+                document.getElementById("storageInfo").textContent = `Storage Usage: ${usage.toFixed(2)} ${unit} (Limit: 10 MB)`;
+            } else {
+                document.getElementById("storageInfo").textContent = "Storage info not available.";
+            }
+        } catch (error) {
+            console.error("Error in updateStorageInfo:", error);
+            document.getElementById("storageInfo").textContent = "Error calculating storage.";
+        }
+    }
+
+    // Notifikasi
+    function showNotification(message) {
+        try {
+            const notification = document.getElementById("notification");
+            if (!notification) return;
+            
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            // Reset animation
+            notification.style.animation = 'none';
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.5s forwards, fadeOut 0.5s forwards 4.5s';
+            }, 10);
+            
+            // Sembunyikan notifikasi setelah 5 detik
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        } catch (error) {
+            console.error("Error showing notification:", error);
+        }
+    }
+    
+    // Fungsi scroll untuk daftar resep
+    function scrollRecipes(direction) {
+        try {
+            const container = document.getElementById("recipeList");
+            if (!container) return;
+            
+            const scrollAmount = 320;
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        } catch (error) {
+            console.error("Error in scrollRecipes:", error);
+        }
+    }
+    
+    // Fungsi scroll untuk meal planner
+    function scrollMealPlans(direction) {
+        try {
+            const container = document.getElementById("mealPlan");
+            if (!container) return;
+            
+            const scrollAmount = 320;
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        } catch (error) {
+            console.error("Error in scrollMealPlans:", error);
+        }
+    }
+    
+    // Fungsi untuk convert kategori ke slug (format CSS)
+    function getCategorySlug(category) {
+        const slugs = {
+            'Sarapan': 'breakfast',
+            'Makan Siang': 'lunch',
+            'Makan Malam': 'dinner',
+            'Dessert': 'dessert'
+        };
+        return slugs[category] || 'default';
+    }
+
+    // Fungsi untuk escape HTML (mencegah XSS)
+    function escapeHtml(unsafe) {
+        if (typeof unsafe !== 'string') return unsafe;
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Init tambah baris pertama
+    document.addEventListener('DOMContentLoaded', function() {
+        addIngredientRow();
+        
+        // Set tanggal hari ini sebagai default untuk meal planner
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('mealDate').value = today;
+    });
+</script>
+<script>
+// PWA Installation
+window.addEventListener('load', () => {
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(registration => {
+        console.log('SW registered: ', registration);
+      })
+      .catch(registrationError => {
+        console.log('SW registration failed: ', registrationError);
+      });
+  }
+
+  // Handle before install prompt
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Show install button if needed
+    const installButton = document.getElementById('installButton');
+    if (installButton) {
+      installButton.style.display = 'block';
+      installButton.addEventListener('click', () => {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted install');
+          }
+          deferredPrompt = null;
+        });
+      });
+    }
+  });
+});
+</script>
+
+<!-- Tombol Install (bisa ditambahkan di footer) -->
+<button id="installButton" class="btn btn-info mt-2" style="display: none;">
+  <i class="fas fa-download"></i> Install Aplikasi
+</button>
+</body>
+</html>
